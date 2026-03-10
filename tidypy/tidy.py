@@ -289,6 +289,10 @@ def desc(col: str) -> SortSpec:
     return SortSpec(column=col, ascending=False)
 
 
+# =====
+# janitor 风格
+# =====
+
 def make_clean_names(names: Iterable[Any], case: str = "snake") -> list[str]:
     """把一组列名清理成稳定、可用的格式。"""
     if case != "snake":
@@ -430,6 +434,10 @@ def na_if(s: Series, value: Any) -> Series:
     """把指定值转换为缺失值。"""
     return s.mask(s == value)
 
+
+# =====
+# 条件与映射
+# =====
 
 def if_else(condition: Any, true: Any, false: Any) -> Series:
     """按条件逐行选择两个分支中的值。"""
@@ -688,6 +696,10 @@ def replace_na(df: DataFrame, value: Any) -> DataFrame:
     return df.fillna(value)
 
 
+# =====
+# janitor 风格
+# =====
+
 def remove_empty(df: DataFrame, axis: str = "both") -> DataFrame:
     """删除全空行、全空列，或两者都删。"""
     if axis not in {"rows", "cols", "both"}:
@@ -723,7 +735,7 @@ def row_to_names(
     return result
 
 
-# 按模块分组导出，方便以后平滑拆分为 selectors / dplyr / stringr / tidyr。
+# 按模块分组导出，方便以后平滑拆分为 selectors / dplyr / stringr / tidyr / janitor。
 __all__ = [
     # 核心数据结构
     "ColSelector",
@@ -737,30 +749,37 @@ __all__ = [
     "ends_with",
     "everything",
     "last_col",
-    "make_clean_names",
     "matches",
     "numeric",
     "starts_with",
     "where",
 
+    # janitor 风格
+    "clean_names",
+    "make_clean_names",
+    "remove_empty",
+    "row_to_names",
+
     # dplyr 风格
     "add_count",
     "arrange",
-    "case_when",
-    "clean_names",
-    "coalesce",
     "count",
     "desc",
     "distinct",
     "filter_rows",
     "glimpse",
-    "if_else",
     "mutate_across",
     "relocate",
     "rename_with",
-    "recode",
     "select",
     "summarize",
+
+    # 条件与映射
+    "case_when",
+    "coalesce",
+    "if_else",
+    "na_if",
+    "recode",
 
     # stringr 风格
     "str_count",
@@ -781,12 +800,9 @@ __all__ = [
     # tidyr 风格
     "drop_na",
     "fill_na",
-    "na_if",
     "pivot_longer",
     "pivot_wider",
     "replace_na",
-    "remove_empty",
-    "row_to_names",
     "separate",
     "unite",
 ]
