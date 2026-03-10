@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import unicodedata
 from collections.abc import Callable, Iterable
 from dataclasses import dataclass
 from typing import Any
@@ -198,6 +199,27 @@ def _infer_case_when_index(cases: tuple[tuple[Any, Any], ...], default: Any) -> 
     raise ValueError("case_when needs at least one Series/list-like mask or value to infer length")
 
 
+def _normalize_name_piece(name: Any, *, case: str = "snake") -> str:
+    text = "" if pd.isna(name) else str(name)
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    if case == "snake":
+        text = text.lower()
+    text = re.sub(r"[^0-9A-Za-z]+", "_", text)
+    text = re.sub(r"_+", "_", text).strip("_")
+    return text or "x"
+
+
+def _dedupe_names(names: Iterable[str]) -> list[str]:
+    seen: dict[str, int] = {}
+    cleaned: list[str] = []
+    for name in names:
+        count = seen.get(name, 0)
+        seen[name] = count + 1
+        cleaned.append(name if count == 0 else f"{name}_{count + 1}")
+    return cleaned
+
+
 # =====
 # selector helper
 # =====
@@ -265,6 +287,19 @@ def where(func: Callable[[Series], bool]) -> ColSelector:
 def desc(col: str) -> SortSpec:
     """生成降序排序描述，适合和 arrange 一起使用。"""
     return SortSpec(column=col, ascending=False)
+
+
+def make_clean_names(names: Iterable[Any], case: str = "snake") -> list[str]:
+    """把一组列名清理成稳定、可用的格式。"""
+    if case != "snake":
+        raise ValueError("case currently only supports 'snake'")
+    normalized = [_normalize_name_piece(name, case=case) for name in names]
+    return _dedupe_names(normalized)
+
+
+def clean_names(df: DataFrame, case: str = "snake") -> DataFrame:
+    """清理整张表的列名。"""
+    return df.set_axis(make_clean_names(df.columns, case=case), axis=1)
 
 
 # =====
@@ -366,6 +401,34 @@ def add_count(df: DataFrame, *cols: Any, sort: bool = False, name: str = "n") ->
     counts = count(df, *cols, sort=sort, name=name)
     join_cols = _flatten_column_args(df, *cols, allow_empty=False)
     return df.merge(counts, on=join_cols, how="left", sort=False)
+
+
+def coalesce(*values: Any) -> Series:
+    """按行返回第一个非缺失值。"""
+    if not values:
+        raise ValueError("coalesce requires at least one Series or scalar")
+
+    series_list: list[Series] = []
+    index: pd.Index | None = None
+    for value in values:
+        if isinstance(value, Series):
+            if index is None:
+                index = value.index
+            series_list.append(value if index is value.index else value.reindex(index))
+        else:
+            if index is None:
+                raise ValueError("coalesce needs a Series before scalar values")
+            series_list.append(pd.Series([value] * len(index), index=index))
+
+    result = series_list[0].copy()
+    for series in series_list[1:]:
+        result = result.where(result.notna(), series)
+    return result
+
+
+def na_if(s: Series, value: Any) -> Series:
+    """把指定值转换为缺失值。"""
+    return s.mask(s == value)
 
 
 def glimpse(
@@ -622,6 +685,7 @@ __all__ = [
     "ends_with",
     "everything",
     "last_col",
+    "make_clean_names",
     "matches",
     "numeric",
     "starts_with",
@@ -631,6 +695,8 @@ __all__ = [
     "add_count",
     "arrange",
     "case_when",
+    "clean_names",
+    "coalesce",
     "count",
     "desc",
     "distinct",
@@ -661,6 +727,7 @@ __all__ = [
     # tidyr 风格
     "drop_na",
     "fill_na",
+    "na_if",
     "pivot_longer",
     "pivot_wider",
     "replace_na",

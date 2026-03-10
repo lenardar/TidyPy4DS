@@ -6,12 +6,16 @@ from tidypy.tidy import (
     add_count,
     arrange,
     case_when,
+    clean_names,
+    coalesce,
     count,
     desc,
     drop_na,
     fill_na,
     glimpse,
+    make_clean_names,
     mutate_across,
+    na_if,
     numeric,
     pivot_longer,
     pivot_wider,
@@ -171,6 +175,35 @@ class TidyTests(unittest.TestCase):
         )
         self.assertEqual(result.tolist(), ["A", "C", "B"])
 
+    def test_make_clean_names_and_clean_names(self) -> None:
+        names = ["Patient ID", "Age (Years)", "score math", "score-math", None, ""]
+        cleaned = make_clean_names(names)
+        self.assertEqual(
+            cleaned,
+            ["patient_id", "age_years", "score_math", "score_math_2", "x", "x_2"],
+        )
+
+        raw = pd.DataFrame(
+            [[1, 10, 90, 80]],
+            columns=["Patient ID", "Age (Years)", "score math", "score-math"],
+        )
+        result = clean_names(raw)
+        self.assertEqual(
+            result.columns.tolist(),
+            ["patient_id", "age_years", "score_math", "score_math_2"],
+        )
+
+    def test_coalesce_and_na_if(self) -> None:
+        first = pd.Series([None, 2, None, 4])
+        second = pd.Series([10, None, 30, None])
+        result = coalesce(first, second, 99)
+        self.assertEqual(result.tolist(), [10, 2, 30, 4])
+
+        masked = na_if(pd.Series(["A", "N/A", "B"]), "N/A")
+        self.assertEqual(masked.iloc[0], "A")
+        self.assertTrue(pd.isna(masked.iloc[1]))
+        self.assertEqual(masked.iloc[2], "B")
+
     def test_errors_for_missing_and_invalid_arguments(self) -> None:
         with self.assertRaises(KeyError):
             select(self.df, "missing")
@@ -184,6 +217,10 @@ class TidyTests(unittest.TestCase):
             fill_na(self.df, "score_math", direction="sideways")
         with self.assertRaises(ValueError):
             case_when(default="x")
+        with self.assertRaises(ValueError):
+            make_clean_names(["a"], case="upper")
+        with self.assertRaises(ValueError):
+            coalesce(1, 2)
 
 
 if __name__ == "__main__":

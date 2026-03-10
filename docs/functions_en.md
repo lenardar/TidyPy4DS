@@ -146,6 +146,53 @@ where(lambda s: s.isnull().any())
 where(lambda s: s.nunique() < 10)
 ```
 
+### `make_clean_names(names, case="snake")`
+
+Clean a sequence of names into a stable snake_case style.
+
+Parameters:
+
+- `names`: any iterable of names
+- `case`: currently only supports `"snake"`
+
+Returns:
+
+- `list[str]`
+
+Rules:
+
+- Unicode text is normalized and folded to ASCII when possible
+- non-alphanumeric characters become underscores
+- repeated underscores are collapsed
+- leading and trailing underscores are removed
+- empty results fall back to `"x"`
+- duplicate names get suffixes such as `_2`, `_3`
+
+Example:
+
+```python
+make_clean_names(["Patient ID", "Age (Years)", "score math", "score-math"])
+```
+
+### `clean_names(df, case="snake")`
+
+Clean the column names of a whole DataFrame.
+
+Parameters:
+
+- `df`: input DataFrame
+- `case`: currently only supports `"snake"`
+
+Returns:
+
+- new DataFrame
+
+Example:
+
+```python
+clean_names(df)
+```
+
 ## dplyr-style
 
 ### `glimpse(df, cols=None, width=3, max_width=24, as_text=False, display=True, return_df=True)`
@@ -261,6 +308,30 @@ count(df, "dept", sort=True, name="rows")
 
 Group and count rows, then merge the count back into the original table.
 
+### `coalesce(*values)`
+
+Return the first non-missing value row by row.
+
+Parameters:
+
+- `values`: a sequence of `Series` objects or scalars; the first argument must be a `Series`
+
+Returns:
+
+- `Series`
+
+Example:
+
+```python
+coalesce(df["score_math"], df["score_eng"], 0)
+```
+
+Notes:
+
+- values are aligned to the index of the first `Series`
+- scalars are expanded to the same length automatically
+- the current implementation does not allow a scalar as the first argument
+
 ### `case_when(*cases, default=None)`
 
 Pick values from the first matching condition, useful for building label columns.
@@ -366,6 +437,25 @@ By default missing values are turned into empty strings instead of the literal s
 ### `drop_na(df, *cols)`
 
 Drop rows with missing values, checking either the given columns or the whole table.
+
+### `na_if(s, value)`
+
+Replace a specific value with missing values.
+
+Parameters:
+
+- `s`: input `Series`
+- `value`: target value to convert to missing
+
+Returns:
+
+- `Series`
+
+Example:
+
+```python
+na_if(pd.Series(["A", "N/A", "B"]), "N/A")
+```
 
 ### `fill_na(df, *cols, direction="down")`
 

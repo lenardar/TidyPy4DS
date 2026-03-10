@@ -50,8 +50,9 @@ Jupyter 演示：
 - selector 系统：`ColSelector`
 - 列 helper：`starts_with`、`ends_with`、`contains`、`matches`、`everything`、`last_col`
 - 类型 helper：`numeric`、`categorical`、`boolean`、`datetime`、`where`
+- 列名清理：`make_clean_names`、`clean_names`
 - dplyr 风格函数：`glimpse`、`select`、`filter_rows`、`mutate_across`、`arrange`、`desc`、`rename_with`、`summarize`、`relocate`、`distinct`、`count`、`add_count`
-- 条件映射函数：`case_when`
+- 条件与缺失值辅助：`case_when`、`coalesce`、`na_if`
 - stringr 风格函数：常用 `str_*`
 - tidyr 风格函数：`pivot_longer`、`pivot_wider`、`separate`、`unite`、`drop_na`、`fill_na`、`replace_na`
 
@@ -103,8 +104,16 @@ select(df, everything() - categorical())
 ```python
 result = (
     df
-    .pipe(mutate_across, starts_with("score_"), lambda s: s.fillna(0))
-    .pipe(rename_with, lambda c: c.replace("score_", ""), starts_with("score_"))
+    .pipe(
+        mutate_across,
+        starts_with("score_"),
+        lambda s: s.fillna(0),
+    )
+    .pipe(
+        rename_with,
+        lambda c: c.replace("score_", ""),
+        starts_with("score_"),
+    )
 )
 ```
 
@@ -113,10 +122,46 @@ result = (
 ```python
 result = (
     df
-    .pipe(select, "id", "dept", starts_with("score_"), "name")
-    .pipe(mutate_across, starts_with("score_"), lambda s: s.fillna(0))
-    .pipe(filter_rows, lambda x: str_detect(x["name"], r"^A"))
-    .pipe(arrange, "dept", desc("score_math"))
+    .pipe(
+        select,
+        "id",
+        "dept",
+        starts_with("score_"),
+        "name",
+    )
+    .pipe(
+        mutate_across,
+        starts_with("score_"),
+        lambda s: s.fillna(0),
+    )
+    .pipe(
+        filter_rows,
+        lambda x: str_detect(x["name"], r"^A"),
+    )
+    .pipe(
+        arrange,
+        "dept",
+        desc("score_math"),
+    )
+)
+```
+
+### 列名清理与缺失值辅助
+
+```python
+clean_df = clean_names(
+    pd.DataFrame(columns=["Patient ID", "Age (Years)", "score math"])
+)
+
+label = coalesce(
+    df["score_math"],
+    df["score_eng"],
+    0,
+)
+
+name = na_if(
+    pd.Series(["A", "N/A", "B"]),
+    "N/A",
 )
 ```
 
@@ -183,9 +228,11 @@ add_count(df, "dept")
 - `boolean`
 - `datetime`
 - `where`
+- `make_clean_names`
 
 ### dplyr 风格
 
+- `clean_names`
 - `glimpse`
 - `select`
 - `filter_rows`
@@ -199,6 +246,7 @@ add_count(df, "dept")
 - `count`
 - `add_count`
 - `case_when`
+- `coalesce`
 
 ### stringr 风格
 
@@ -219,6 +267,7 @@ add_count(df, "dept")
 
 ### tidyr 风格
 
+- `na_if`
 - `pivot_longer`
 - `pivot_wider`
 - `separate`

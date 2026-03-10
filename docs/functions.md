@@ -266,6 +266,53 @@ where(lambda s: s.isnull().any())
 where(lambda s: s.nunique() < 10)
 ```
 
+### `make_clean_names(names, case="snake")`
+
+作用：把一组名称清理成稳定、统一的蛇形命名。
+
+参数：
+
+- `names`: 任意可迭代名称
+- `case`: 当前只支持 `"snake"`
+
+返回值：
+
+- `list[str]`
+
+规则：
+
+- Unicode 字符会先做规范化，再尽量转成 ASCII
+- 非字母数字字符会转成下划线
+- 连续下划线会压缩成一个
+- 首尾下划线会去掉
+- 空结果会回退为 `"x"`
+- 重名会自动补后缀，如 `_2`、`_3`
+
+示例：
+
+```python
+make_clean_names(["Patient ID", "Age (Years)", "score math", "score-math"])
+```
+
+### `clean_names(df, case="snake")`
+
+作用：清理整张表的列名。
+
+参数：
+
+- `df`: 输入 DataFrame
+- `case`: 当前只支持 `"snake"`
+
+返回值：
+
+- 新 DataFrame
+
+示例：
+
+```python
+clean_names(df)
+```
+
 ## dplyr 风格
 
 ### `glimpse(df, cols=None, width=3, max_width=24, as_text=False, display=True, return_df=True)`
@@ -567,6 +614,30 @@ count(df, "dept", sort=True, name="rows")
 add_count(df, "dept")
 ```
 
+### `coalesce(*values)`
+
+作用：按行返回第一个非缺失值。
+
+参数：
+
+- `values`: 一组 `Series` 或标量，至少要先传一个 `Series`
+
+返回值：
+
+- `Series`
+
+示例：
+
+```python
+coalesce(df["score_math"], df["score_eng"], 0)
+```
+
+说明：
+
+- 会按第一个 `Series` 的索引对齐
+- 标量会自动扩展成同长度的 `Series`
+- 当前实现要求标量不能放在第一个位置
+
 ### `case_when(*cases, default=None)`
 
 作用：按条件依次选择值，适合构造分类列。
@@ -863,6 +934,25 @@ unite(df, "code", "letter", "num", sep="-")
 ```python
 drop_na(df)
 drop_na(df, "score_math")
+```
+
+### `na_if(s, value)`
+
+作用：把指定值替换成缺失值。
+
+参数：
+
+- `s`: 输入 `Series`
+- `value`: 要替换的目标值
+
+返回值：
+
+- `Series`
+
+示例：
+
+```python
+na_if(pd.Series(["A", "N/A", "B"]), "N/A")
 ```
 
 ### `fill_na(df, *cols, direction="down")`
