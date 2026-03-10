@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tidypy4ds"
+version = "0.1.0"
+description = "Tidy-style data cleaning helpers built on pandas."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.2",
+]
+
+[tool.setuptools]
+packages = ["tidypy"]
