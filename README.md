@@ -2,6 +2,8 @@
 
 `TidyPy4DS` 是一组基于 `pandas` 的 tidyverse 数据清洗函数。
 
+English README: [README_EN.md](/Users/xuzhiyuan/code/research/TidyPy4DS/README_EN.md)
+
 它专注解决 pandas 在日常整理流程里最容易写得啰嗦的部分：列选择、批量变换、字符串处理、宽长表转换，以及更顺手的 `.pipe()` 链式调用。
 
 ## 设计目标
@@ -23,15 +25,25 @@
 
 代码位于 [tidypy/tidy.py](/Users/xuzhiyuan/code/research/TidyPy4DS/tidypy/tidy.py)。
 
-详细函数说明见 [docs/functions.md](/Users/xuzhiyuan/code/research/TidyPy4DS/docs/functions.md)。
+详细函数说明：
+中文版 [docs/functions.md](/Users/xuzhiyuan/code/research/TidyPy4DS/docs/functions.md)
+英文版 [docs/functions_en.md](/Users/xuzhiyuan/code/research/TidyPy4DS/docs/functions_en.md)
 
-Notebook 示例见 [docs/notebook.md](/Users/xuzhiyuan/code/research/TidyPy4DS/docs/notebook.md)。
+Notebook 说明：
+中文版 [docs/notebook.md](/Users/xuzhiyuan/code/research/TidyPy4DS/docs/notebook.md)
+英文版 [docs/notebook_en.md](/Users/xuzhiyuan/code/research/TidyPy4DS/docs/notebook_en.md)
 
 Jupyter 演示：
 
-- 为什么用 tidypy：[examples/01-why-tidypy.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/01-why-tidypy.ipynb)
-- 核心 API 用法：[examples/02-core-apis.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/02-core-apis.ipynb)
-- 整形与缺失值处理：[examples/03-reshape-and-missing-values.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/03-reshape-and-missing-values.ipynb)
+- 为什么用 tidypy：
+  中文版 [examples/01-why-tidypy.zh.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/01-why-tidypy.zh.ipynb)
+  英文版 [examples/01-why-tidypy.en.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/01-why-tidypy.en.ipynb)
+- 核心 API 用法：
+  中文版 [examples/02-core-apis.zh.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/02-core-apis.zh.ipynb)
+  英文版 [examples/02-core-apis.en.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/02-core-apis.en.ipynb)
+- 整形与缺失值处理：
+  中文版 [examples/03-reshape-and-missing-values.zh.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/03-reshape-and-missing-values.zh.ipynb)
+  英文版 [examples/03-reshape-and-missing-values.en.ipynb](/Users/xuzhiyuan/code/research/TidyPy4DS/examples/03-reshape-and-missing-values.en.ipynb)
 
 已提供：
 
@@ -277,13 +289,19 @@ TidyPy4DS/
 │       └── tests.yml
 ├── docs/
 │   ├── functions.md
-│   └── notebook.md
+│   ├── functions_en.md
+│   ├── notebook.md
+│   └── notebook_en.md
 ├── examples/
-│   ├── 01-why-tidypy.ipynb
-│   ├── 02-core-apis.ipynb
-│   └── 03-reshape-and-missing-values.ipynb
+│   ├── 01-why-tidypy.en.ipynb
+│   ├── 01-why-tidypy.zh.ipynb
+│   ├── 02-core-apis.en.ipynb
+│   ├── 02-core-apis.zh.ipynb
+│   ├── 03-reshape-and-missing-values.en.ipynb
+│   └── 03-reshape-and-missing-values.zh.ipynb
 ├── pyproject.toml
 ├── README.md
+├── README_EN.md
 ├── tests/
 │   └── test_tidy.py
 └── tidypy/
