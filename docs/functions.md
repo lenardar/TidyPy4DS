@@ -638,6 +638,47 @@ coalesce(df["score_math"], df["score_eng"], 0)
 - 标量会自动扩展成同长度的 `Series`
 - 当前实现要求标量不能放在第一个位置
 
+### `if_else(condition, true, false)`
+
+作用：按条件逐行选择两个分支中的值。
+
+参数：
+
+- `condition`: 布尔条件，可为 `Series`、列表或标量
+- `true`: 条件为真时返回的值
+- `false`: 条件为假时返回的值
+
+返回值：
+
+- `Series`
+
+示例：
+
+```python
+if_else(df["score_math"] >= 90, "top", "other")
+```
+
+### `recode(s, mapping, default=None)`
+
+作用：按映射表重编码一列的值。
+
+参数：
+
+- `s`: 输入 `Series`
+- `mapping`: 旧值到新值的字典
+- `default`: 映射不到时的默认值；不传时保留原值
+
+返回值：
+
+- `Series`
+
+示例：
+
+```python
+recode(df["dept"], {"A": "Alpha", "B": "Beta"})
+recode(df["dept"], {"A": "Alpha"}, default="Other")
+```
+
 ### `case_when(*cases, default=None)`
 
 作用：按条件依次选择值，适合构造分类列。
@@ -1000,3 +1041,49 @@ fill_na(df, direction="up")
 replace_na(df, 0)
 replace_na(df, {"score_math": 0, "score_eng": 0})
 ```
+
+### `remove_empty(df, axis="both")`
+
+作用：删除全空行、全空列，或两者都删。
+
+参数：
+
+- `df`: 输入 DataFrame
+- `axis`: `"rows"`、`"cols"` 或 `"both"`
+
+返回值：
+
+- 新 DataFrame
+
+示例：
+
+```python
+remove_empty(df, axis="rows")
+remove_empty(df, axis="both")
+```
+
+### `row_to_names(df, row=0, remove_row=True, reset_index=True)`
+
+作用：把某一行提升为列名，适合清理脏 Excel 表头。
+
+参数：
+
+- `df`: 输入 DataFrame
+- `row`: 作为表头的行号
+- `remove_row`: 是否删除原始表头行
+- `reset_index`: 是否重置索引
+
+返回值：
+
+- 新 DataFrame
+
+示例：
+
+```python
+row_to_names(df, row=0)
+```
+
+说明：
+
+- 新列名会自动经过 `make_clean_names(...)`
+- `row` 超出范围时会抛 `IndexError`

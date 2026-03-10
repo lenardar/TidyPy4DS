@@ -431,6 +431,23 @@ def na_if(s: Series, value: Any) -> Series:
     return s.mask(s == value)
 
 
+def if_else(condition: Any, true: Any, false: Any) -> Series:
+    """按条件逐行选择两个分支中的值。"""
+    index = _infer_case_when_index(((condition, true),), false)
+    mask = _coerce_case_when_piece(condition, index).astype(bool)
+    true_values = _coerce_case_when_piece(true, index)
+    false_values = _coerce_case_when_piece(false, index)
+    return false_values.where(~mask, true_values)
+
+
+def recode(s: Series, mapping: dict[Any, Any], default: Any = None) -> Series:
+    """按映射表重编码 Series 的值。"""
+    result = s.map(mapping)
+    if default is None:
+        return result.where(s.isin(mapping), s)
+    return result.fillna(default)
+
+
 def glimpse(
     df: DataFrame,
     *,
@@ -671,6 +688,41 @@ def replace_na(df: DataFrame, value: Any) -> DataFrame:
     return df.fillna(value)
 
 
+def remove_empty(df: DataFrame, axis: str = "both") -> DataFrame:
+    """删除全空行、全空列，或两者都删。"""
+    if axis not in {"rows", "cols", "both"}:
+        raise ValueError("axis must be 'rows', 'cols', or 'both'")
+
+    result = df
+    if axis in {"rows", "both"}:
+        result = result.dropna(axis=0, how="all")
+    if axis in {"cols", "both"}:
+        result = result.dropna(axis=1, how="all")
+    return result
+
+
+def row_to_names(
+    df: DataFrame,
+    row: int = 0,
+    *,
+    remove_row: bool = True,
+    reset_index: bool = True,
+) -> DataFrame:
+    """把某一行提成列名，常用于清理脏 Excel 表头。"""
+    if row < 0 or row >= len(df):
+        raise IndexError("row is out of range")
+
+    names = make_clean_names(df.iloc[row].tolist())
+    result = df.copy()
+    result.columns = names
+
+    if remove_row:
+        result = result.drop(df.index[row])
+    if reset_index:
+        result = result.reset_index(drop=True)
+    return result
+
+
 # 按模块分组导出，方便以后平滑拆分为 selectors / dplyr / stringr / tidyr。
 __all__ = [
     # 核心数据结构
@@ -702,9 +754,11 @@ __all__ = [
     "distinct",
     "filter_rows",
     "glimpse",
+    "if_else",
     "mutate_across",
     "relocate",
     "rename_with",
+    "recode",
     "select",
     "summarize",
 
@@ -731,6 +785,8 @@ __all__ = [
     "pivot_longer",
     "pivot_wider",
     "replace_na",
+    "remove_empty",
+    "row_to_names",
     "separate",
     "unite",
 ]

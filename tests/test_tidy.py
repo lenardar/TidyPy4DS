@@ -13,15 +13,19 @@ from tidypy.tidy import (
     drop_na,
     fill_na,
     glimpse,
+    if_else,
     make_clean_names,
     mutate_across,
     na_if,
     numeric,
     pivot_longer,
     pivot_wider,
+    recode,
+    remove_empty,
     relocate,
     rename_with,
     replace_na,
+    row_to_names,
     select,
     separate,
     starts_with,
@@ -204,6 +208,40 @@ class TidyTests(unittest.TestCase):
         self.assertTrue(pd.isna(masked.iloc[1]))
         self.assertEqual(masked.iloc[2], "B")
 
+    def test_if_else_and_recode(self) -> None:
+        label = if_else(
+            self.df["score_math"] >= 90,
+            "top",
+            "other",
+        )
+        self.assertEqual(label.tolist(), ["top", "other", "other"])
+
+        recoded = recode(self.df["dept"], {"A": "Alpha", "B": "Beta"})
+        self.assertEqual(recoded.tolist(), ["Alpha", "Alpha", "Beta"])
+
+        fallback = recode(
+            pd.Series(["A", "C", "B"]),
+            {"A": "Alpha", "B": "Beta"},
+            default="Other",
+        )
+        self.assertEqual(fallback.tolist(), ["Alpha", "Other", "Beta"])
+
+    def test_remove_empty_and_row_to_names(self) -> None:
+        raw = pd.DataFrame(
+            [
+                ["Patient ID", "Score Math", None],
+                [1, 90, None],
+                [2, 88, None],
+                [None, None, None],
+            ]
+        )
+        renamed = row_to_names(raw)
+        self.assertEqual(renamed.columns.tolist(), ["patient_id", "score_math", "x"])
+        self.assertEqual(renamed.iloc[0].tolist(), [1, 90, None])
+
+        cleaned = remove_empty(raw, axis="both")
+        self.assertEqual(cleaned.shape, (3, 2))
+
     def test_errors_for_missing_and_invalid_arguments(self) -> None:
         with self.assertRaises(KeyError):
             select(self.df, "missing")
@@ -221,6 +259,10 @@ class TidyTests(unittest.TestCase):
             make_clean_names(["a"], case="upper")
         with self.assertRaises(ValueError):
             coalesce(1, 2)
+        with self.assertRaises(ValueError):
+            remove_empty(self.df, axis="diagonal")
+        with self.assertRaises(IndexError):
+            row_to_names(self.df, row=99)
 
 
 if __name__ == "__main__":

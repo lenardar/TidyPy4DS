@@ -52,9 +52,9 @@ Jupyter 演示：
 - 类型 helper：`numeric`、`categorical`、`boolean`、`datetime`、`where`
 - 列名清理：`make_clean_names`、`clean_names`
 - dplyr 风格函数：`glimpse`、`select`、`filter_rows`、`mutate_across`、`arrange`、`desc`、`rename_with`、`summarize`、`relocate`、`distinct`、`count`、`add_count`
-- 条件与缺失值辅助：`case_when`、`coalesce`、`na_if`
+- 条件与缺失值辅助：`case_when`、`if_else`、`recode`、`coalesce`、`na_if`
 - stringr 风格函数：常用 `str_*`
-- tidyr 风格函数：`pivot_longer`、`pivot_wider`、`separate`、`unite`、`drop_na`、`fill_na`、`replace_na`
+- tidyr 风格函数：`pivot_longer`、`pivot_wider`、`separate`、`unite`、`drop_na`、`fill_na`、`replace_na`、`remove_empty`、`row_to_names`
 
 暂未包含：
 
@@ -165,6 +165,24 @@ name = na_if(
 )
 ```
 
+### 条件映射与脏表头清理
+
+```python
+label = if_else(
+    df["score_math"] >= 90,
+    "top",
+    "other",
+)
+
+dept_name = recode(
+    df["dept"],
+    {"A": "Alpha", "B": "Beta"},
+)
+
+header_df = row_to_names(raw_excel_df, row=0)
+compact_df = remove_empty(header_df, axis="both")
+```
+
 ### 宽长表转换
 
 ```python
@@ -246,6 +264,8 @@ add_count(df, "dept")
 - `count`
 - `add_count`
 - `case_when`
+- `if_else`
+- `recode`
 - `coalesce`
 
 ### stringr 风格
@@ -275,6 +295,8 @@ add_count(df, "dept")
 - `drop_na`
 - `fill_na`
 - `replace_na`
+- `remove_empty`
+- `row_to_names`
 
 ## 主要约定
 

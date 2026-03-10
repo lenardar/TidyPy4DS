@@ -332,6 +332,47 @@ Notes:
 - scalars are expanded to the same length automatically
 - the current implementation does not allow a scalar as the first argument
 
+### `if_else(condition, true, false)`
+
+Choose between two branches row by row.
+
+Parameters:
+
+- `condition`: boolean condition, as a `Series`, list-like value, or scalar
+- `true`: value used when the condition is true
+- `false`: value used when the condition is false
+
+Returns:
+
+- `Series`
+
+Example:
+
+```python
+if_else(df["score_math"] >= 90, "top", "other")
+```
+
+### `recode(s, mapping, default=None)`
+
+Recode a Series with a mapping dictionary.
+
+Parameters:
+
+- `s`: input `Series`
+- `mapping`: dictionary from old values to new values
+- `default`: fallback for unmapped values; when omitted, original values are kept
+
+Returns:
+
+- `Series`
+
+Example:
+
+```python
+recode(df["dept"], {"A": "Alpha", "B": "Beta"})
+recode(df["dept"], {"A": "Alpha"}, default="Other")
+```
+
 ### `case_when(*cases, default=None)`
 
 Pick values from the first matching condition, useful for building label columns.
@@ -467,3 +508,49 @@ Fill missing values by direction.
 ### `replace_na(df, value)`
 
 Replace missing values with a fixed value or mapping.
+
+### `remove_empty(df, axis="both")`
+
+Drop fully empty rows, fully empty columns, or both.
+
+Parameters:
+
+- `df`: input DataFrame
+- `axis`: `"rows"`, `"cols"`, or `"both"`
+
+Returns:
+
+- new DataFrame
+
+Example:
+
+```python
+remove_empty(df, axis="rows")
+remove_empty(df, axis="both")
+```
+
+### `row_to_names(df, row=0, remove_row=True, reset_index=True)`
+
+Promote one row to column names, useful for messy Excel-style headers.
+
+Parameters:
+
+- `df`: input DataFrame
+- `row`: row index to use as the header
+- `remove_row`: whether to remove the original header row
+- `reset_index`: whether to reset the index afterwards
+
+Returns:
+
+- new DataFrame
+
+Example:
+
+```python
+row_to_names(df, row=0)
+```
+
+Notes:
+
+- new column names are passed through `make_clean_names(...)`
+- out-of-range `row` values raise `IndexError`

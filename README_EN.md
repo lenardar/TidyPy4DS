@@ -52,9 +52,9 @@ Implemented so far:
 - type helpers: `numeric`, `categorical`, `boolean`, `datetime`, `where`
 - name cleaning helpers: `make_clean_names`, `clean_names`
 - dplyr-style helpers: `glimpse`, `select`, `filter_rows`, `mutate_across`, `arrange`, `desc`, `rename_with`, `summarize`, `relocate`, `distinct`, `count`, `add_count`
-- conditional and missing-value helpers: `case_when`, `coalesce`, `na_if`
+- conditional and missing-value helpers: `case_when`, `if_else`, `recode`, `coalesce`, `na_if`
 - stringr-style helpers: common `str_*`
-- tidyr-style helpers: `pivot_longer`, `pivot_wider`, `separate`, `unite`, `drop_na`, `fill_na`, `replace_na`
+- tidyr-style helpers: `pivot_longer`, `pivot_wider`, `separate`, `unite`, `drop_na`, `fill_na`, `replace_na`, `remove_empty`, `row_to_names`
 
 Not included yet:
 
@@ -165,6 +165,24 @@ name = na_if(
 )
 ```
 
+### Conditional Mapping And Messy Header Cleanup
+
+```python
+label = if_else(
+    df["score_math"] >= 90,
+    "top",
+    "other",
+)
+
+dept_name = recode(
+    df["dept"],
+    {"A": "Alpha", "B": "Beta"},
+)
+
+header_df = row_to_names(raw_excel_df, row=0)
+compact_df = remove_empty(header_df, axis="both")
+```
+
 ### Reshaping
 
 ```python
@@ -246,6 +264,8 @@ add_count(df, "dept")
 - `count`
 - `add_count`
 - `case_when`
+- `if_else`
+- `recode`
 - `coalesce`
 
 ### stringr-style
@@ -275,6 +295,8 @@ add_count(df, "dept")
 - `drop_na`
 - `fill_na`
 - `replace_na`
+- `remove_empty`
+- `row_to_names`
 
 ## Conventions
 
